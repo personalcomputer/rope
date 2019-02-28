@@ -448,9 +448,6 @@ class MoveModule(object):
                     task_handle=taskhandle.NullTaskHandle()):
         if resources is None:
             resources = self.project.get_python_files()
-        if dest is None or not dest.is_folder():
-            raise exceptions.RefactoringError(
-                'Move destination for modules should be packages.')
         return self._calculate_changes(dest, resources, task_handle)
 
     def _calculate_changes(self, dest, resources, task_handle):
@@ -474,7 +471,9 @@ class MoveModule(object):
     def _new_modname(self, dest):
         destname = libutils.modname(dest)
         if destname:
-            return destname + '.' + self.old_name
+            if dest.is_folder():
+                return destname + '.' + self.old_name
+            return destname
         return self.old_name
 
     def _new_import(self, dest):
